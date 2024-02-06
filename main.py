@@ -20,43 +20,41 @@ whatsapp_number = {
 
 
 schedule = {
-    "01-01-2024": ["ardian","rian","muhidin"],
-    "02-01-2024": ["kharis","ardian","rian"],
-    "03-01-2024": ["muhidin","kharis","ardian"],
-    "04-01-2024": ["rian","muhidin","kharis"],
-    "05-01-2024": ["ardian","rian","muhidin"],
-    "06-01-2024": ["kharis","ardian","rian"],
-    "07-01-2024": ["muhidin","kharis","ardian"],
-    "08-01-2024": ["rian","muhidin","kharis"],
-    "09-01-2024": ["ardian","rian","muhidin"],
-    "10-01-2024": ["kharis","ardian","rian"],
-    "11-01-2024": ["muhidin","kharis","ardian"],
-    "12-01-2024": ["rian","muhidin","kharis"],
-    "13-01-2024": ["ardian","rian","muhidin"],
-    "14-01-2024": ["kharis","ardian","rian"],
-    "15-01-2024": ["muhidin","kharis","ardian"],
-    "16-01-2024": ["rian","muhidin","kharis"],
-    "17-01-2024": ["ardian","rian","muhidin"],
-    "18-01-2024": ["kharis","ardian","rian"],
-    "19-01-2024": ["muhidin","kharis","ardian"],
-    "20-01-2024": ["rian","muhidin","kharis"],
-    "21-01-2024": ["ardian","rian","muhidin"],
-    "22-01-2024": ["kharis","ardian","rian"],
-    "23-01-2024": ["muhidin","kharis","ardian"],
-    "24-01-2024": ["rian","muhidin","kharis"],
-    "25-01-2024": ["ardian","rian","muhidin"],
-    "26-01-2024": ["kharis","ardian","rian"],
-    "27-01-2024": ["muhidin","kharis","ardian"],
-    "28-01-2024": ["rian","muhidin","kharis"],
-    "29-01-2024": ["ardian","rian","muhidin"],
-    "30-01-2024": ["kharis","ardian","rian"],
-    "31-01-2024": ["muhidin","kharis","ardian"]
+    "01-02-2024": ["rian","muhidin","kharis"],
+    "02-02-2024": ["ardian","rian","muhidin"],
+    "03-02-2024": ["kharis","ardian","rian"],
+    "04-02-2024": ["muhidin","kharis","ardian"],
+    "05-02-2024": ["rian","muhidin","kharis"],
+    "06-02-2024": ["ardian","rian","muhidin"],
+    "07-02-2024": ["kharis","ardian","rian"],
+    "08-02-2024": ["muhidin","kharis","ardian"],
+    "09-02-2024": ["rian","muhidin","kharis"],
+    "10-02-2024": ["ardian","rian","muhidin"],
+    "11-02-2024": ["kharis","ardian","rian"],
+    "12-02-2024": ["muhidin","kharis","ardian"],
+    "13-02-2024": ["rian","muhidin","kharis"],
+    "14-02-2024": ["ardian","rian","muhidin"],
+    "15-02-2024": ["kharis","ardian","rian"],
+    "16-02-2024": ["muhidin","kharis","ardian"],
+    "17-02-2024": ["rian","muhidin","kharis"],
+    "18-02-2024": ["ardian","rian","muhidin"],
+    "19-02-2024": ["kharis","ardian","rian"],
+    "20-02-2024": ["muhidin","kharis","ardian"],
+    "21-02-2024": ["rian","muhidin","kharis"],
+    "22-02-2024": ["ardian","rian","muhidin"],
+    "23-02-2024": ["kharis","ardian","rian"],
+    "24-02-2024": ["muhidin","kharis","ardian"],
+    "25-02-2024": ["rian","muhidin","kharis"],
+    "26-02-2024": ["ardian","rian","muhidin"],
+    "27-02-2024": ["kharis","ardian","rian"],
+    "28-02-2024": ["muhidin","kharis","ardian"],
+    "29-02-2024": ["rian","muhidin","kharis"],
 }
 
 wa_dags = [
-    'cbs_tradefinance_to_landing', 
-    'cbs_loaniq_to_landing', 
-    'dag_cbs_ism_gbr', 
+    'cbs_tradefinance_to_landing',
+    'cbs_loaniq_to_landing',
+    'dag_cbs_ism_gbr',
     'cms_cccore_to_datalake',
     'dag_wms_crn_level',
     'equation_batch_btpmis',
@@ -74,7 +72,7 @@ wa_dags = [
     'eadvis_batch_airflow',
     'equation_batch_data_metric',
     'NET_POS_HIST_RLUD_Job',
-    'ods_to_staging_and_history_data_metric',   
+    'ods_to_staging_and_history_data_metric',
     'tfms_daily_metric_net',
     'penyamaan_collect_data_metric',
     'ods_jfmf_data_metric',
@@ -132,10 +130,11 @@ while True:
     # Get the current time in the specified timezone
     current_time_utc = time.gmtime()
     current_time = pytz.utc.localize(dt(*current_time_utc[:6])).astimezone(jakarta_timezone)
+    datetime_format = f"{current_time.day}/{current_time.month}/{current_time.year} {current_time.hour}:{current_time.minute}:{current_time.second}"
     current_date = dt.now(pytz.timezone('Asia/Jakarta')).strftime('%d-%m-%Y')
 
     if current_date in schedule:
-        print(f'\ncurrent date and time: {current_date} {current_time}')
+        print(f'\ncurrent date and time: {datetime_format}')
         shifts_for_date = schedule[current_date]
         print(f'shifts for date: {shifts_for_date}')
 
@@ -148,31 +147,6 @@ while True:
                 job_name = job['dag_name']
                 start_at = dt.strptime(job['start_at'], '%H:%M:%S').time()
                 done_at = dt.strptime(job['done_at'], '%H:%M:%S').time()
-
-                #notify job starting
-                if current_time.hour == start_at.hour and current_time.minute == start_at.minute:
-                    if job_name in wa_dags:
-                        print(f'\nWhatsapp notification job: {bold(job_name)} - STARTING')
-
-                        # Send WhatsApp notification using Twilio to the person on duty
-                        message_body = f"Whatsapp notification job: *{job_name}* is starting"
-                        message = client.messages.create(
-                            body=message_body,
-                            from_=twilio_whatsapp_number,
-                            to=whatsapp_number[current_shift]  # Send to the person on duty during the current shift
-                        )
-                        print(f"WhatsApp notification sent to {current_shift}, {whatsapp_number[current_shift]}: {message.body}\n")
-                    
-                    else:
-                        print(f'\nJob: {bold(job_name)} - STARTING')
-                        message_body = f"*{job_name}* is starting"
-                        message = client.messages.create(
-                            body=message_body,
-                            from_=twilio_whatsapp_number,
-                            to=whatsapp_number[current_shift]  # Send to the person on duty during the current shift
-                        )
-                        print(f"WhatsApp notification sent to {current_shift}, {whatsapp_number[current_shift]}: {message.body}\n")
-                    
 
                 # Print the job only if the current time is equal to the 'done_at' time of the job
                 if current_time.hour == done_at.hour and current_time.minute == done_at.minute:
@@ -187,6 +161,7 @@ while True:
                             to=whatsapp_number[current_shift]  # Send to the person on duty during the current shift
                         )
                         print(f"WhatsApp notification sent to {current_shift}, {whatsapp_number[current_shift]}: {message.body}\n")
+                        time.sleep(1)
 
                     else:
                         print(f'\n{bold(job_name)} - READY_TO_CHECK')
@@ -199,6 +174,8 @@ while True:
                             to=whatsapp_number[current_shift]  # Send to the person on duty during the current shift
                         )
                         print(f"WhatsApp notification sent to {current_shift}, {whatsapp_number[current_shift]}: {message.body}\n")
+                        time.sleep(1)
+
             if current_time.weekday() < 5:
                 if 8 <= current_time.hour <= 17 and current_time.minute == 55:
                     print(f'\nhourly job: {bold("cbs_mspayment_intraday")} - READY_TO_CHECK')
